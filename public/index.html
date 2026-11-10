@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>채팅방</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <main class="chat">
+    <header class="chat-header">
+      <h1>채팅방</h1>
+      <button id="change-nickname" type="button" class="link-button" hidden></button>
+    </header>
+
+    <section id="nickname-panel" class="nickname-panel">
+      <form id="nickname-form">
+        <label for="nickname-input">닉네임을 입력하고 입장하세요</label>
+        <div class="row">
+          <input id="nickname-input" maxlength="30" autocomplete="nickname" required>
+          <button type="submit">입장</button>
+        </div>
+      </form>
+    </section>
+
+    <ol id="messages" class="messages" aria-live="polite"></ol>
+    <p id="status" class="status" role="status"></p>
+
+    <form id="message-form" class="message-form">
+      <input id="message-input" maxlength="1000" placeholder="메시지를 입력하세요" autocomplete="off" disabled>
+      <button type="submit" disabled>전송</button>
+    </form>
+  </main>
+  <script src="/js/chat.js"></script>
+</body>
+</html>
