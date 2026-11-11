@@ -6,7 +6,10 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "db:init": "node scripts/init-db.js"
+    "db:init": "node scripts/init-db.js",
+    "db:init:cloud": "node -r dotenv/config scripts/init-db.js dotenv_config_path=.env.cloud",
+    "db:check": "node scripts/check-db.js",
+    "db:check:cloud": "node -r dotenv/config scripts/check-db.js dotenv_config_path=.env.cloud"
   },
   "engines": {
     "node": ">=18"

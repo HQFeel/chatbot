@@ -1,112 +1,590 @@
-:root {
-  --bg: #f4f5f7;
-  --panel: #ffffff;
-  --text: #1f2328;
-  --muted: #6b7280;
-  --border: #e3e5e8;
-  --mine: #3b6ef6;
-  --mine-text: #ffffff;
-  --other: #eef0f3;
-  --error: #c62828;
+/* ───── 테마 토큰 ───── */
+:root,
+:root[data-theme="light"] {
+  --yellow: #fee500;
+  --on-yellow: #191919;
+
+  --app-bg: #ffffff;
+  --line: #ececec;
+  --text: #191919;
+  --text-2: #666666;
+  --text-3: #999999;
+  --hover: #f5f5f5;
+  --active: #ededed;
+
+  --chat-bg: #bacee0;
+  --bubble-other: #ffffff;
+  --bubble-other-text: #191919;
+  --chat-meta: #4c5b6a;
+  --date-pill: rgba(0, 0, 0, 0.1);
+  --date-text: #3d4b59;
+
+  --field-bg: #ffffff;
+  --field-line: #dddddd;
+  --send-off-bg: #f2f2f2;
+  --send-off-text: #b5b5b5;
+
+  --auth-bg: #fee500;
+  --auth-text: #191919;
+  --auth-logo: #3c1e1e;
+  --auth-btn: #3c1e1e;
+  --auth-btn-text: #ffffff;
+  --auth-field-line: rgba(0, 0, 0, 0.12);
+
+  --danger: #e5484d;
+  --scrim: rgba(0, 0, 0, 0.32);
+  --focus: #2f6fde;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+
+  color-scheme: light;
 }
 
+:root[data-theme="dark"] {
+  --app-bg: #1e1f22;
+  --line: #2d2e33;
+  --text: #ececec;
+  --text-2: #a3a5aa;
+  --text-3: #75777c;
+  --hover: #26272b;
+  --active: #2f3035;
+
+  --chat-bg: #232428;
+  --bubble-other: #3a3c42;
+  --bubble-other-text: #ececec;
+  --chat-meta: #9a9ca1;
+  --date-pill: rgba(255, 255, 255, 0.07);
+  --date-text: #b3b5ba;
+
+  --field-bg: #2a2b30;
+  --field-line: #3a3b41;
+  --send-off-bg: #2f3035;
+  --send-off-text: #6c6e73;
+
+  --auth-bg: #1e1f22;
+  --auth-text: #ececec;
+  --auth-logo: #fee500;
+  --auth-btn: #fee500;
+  --auth-btn-text: #191919;
+  --auth-field-line: #3a3b41;
+
+  --danger: #ff6369;
+  --scrim: rgba(0, 0, 0, 0.5);
+  --focus: #fee500;
+  --shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* ───── 기본 ───── */
 * { box-sizing: border-box; }
+
+[hidden] { display: none !important; }
+
+html, body { height: 100%; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--app-bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", "Malgun Gothic", sans-serif;
+  font-family: "Pretendard Variable", Pretendard, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
 }
 
-.chat {
-  max-width: 720px;
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.sprite { display: none; }
+
+svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-2);
+}
+
+.icon-btn:hover { background: var(--hover); color: var(--text); }
+
+/* 프로필: 카카오톡처럼 둥근 사각형 */
+.avatar {
+  --size: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 38%;
+  background: var(--avatar, #9bb2c9);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: calc(var(--size) * 0.4);
+  user-select: none;
+}
+
+.avatar-lg { --size: 48px; }
+.avatar-sm { --size: 36px; }
+
+/* ───── 로그인 / 회원가입 ───── */
+.auth {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: var(--auth-bg);
+  color: var(--auth-text);
+}
+
+.auth-theme { position: absolute; top: 16px; right: 16px; color: inherit; opacity: 0.7; }
+.auth-theme:hover { opacity: 1; background: rgba(127, 127, 127, 0.15); color: inherit; }
+
+.auth-inner { width: 100%; max-width: 300px; text-align: center; }
+
+.auth-logo { width: 88px; height: 88px; margin-bottom: 40px; color: var(--auth-logo); stroke: none; }
+
+.auth-form { display: flex; flex-direction: column; }
+
+.auth-fields {
+  border: 1px solid var(--auth-field-line);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--field-bg);
+}
+
+.auth-fields input {
+  display: block;
+  width: 100%;
+  padding: 13px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+}
+
+.auth-fields input + input:not([hidden]) { border-top: 1px solid var(--auth-field-line); }
+.auth-fields input:focus { outline: none; background: var(--hover); }
+
+.auth-hint { margin: 10px 0 0; font-size: 12px; opacity: 0.7; text-align: left; }
+.auth-error { margin: 10px 0 0; min-height: 18px; font-size: 13px; color: var(--danger); text-align: left; }
+:root[data-theme="light"] .auth-error { color: #c4161c; }
+
+.auth-submit {
+  margin-top: 10px;
+  padding: 13px;
+  border: none;
+  border-radius: 4px;
+  background: var(--auth-btn);
+  color: var(--auth-btn-text);
+  font-weight: 600;
+}
+
+.auth-submit:disabled { opacity: 0.5; }
+
+.auth-switch { margin: 28px 0 0; font-size: 13px; opacity: 0.85; }
+
+.auth-switch button {
+  padding: 0;
+  border: none;
+  background: none;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ───── 메신저 레이아웃 ───── */
+.app {
   height: 100dvh;
-  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+}
+
+.list-pane {
   display: flex;
   flex-direction: column;
-  background: var(--panel);
-  border-left: 1px solid var(--border);
-  border-right: 1px solid var(--border);
+  min-height: 0;
+  border-right: 1px solid var(--line);
+  background: var(--app-bg);
 }
 
-.chat-header {
+.list-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
+  padding: 18px 12px 10px 20px;
 }
 
-.chat-header h1 { margin: 0; font-size: 18px; }
+.list-header h1 { margin: 0; font-size: 20px; font-weight: 700; }
 
-.link-button {
-  background: none;
-  border: none;
-  color: var(--mine);
-  cursor: pointer;
-  font: inherit;
-  font-size: 14px;
-}
+.header-actions { display: flex; gap: 2px; }
 
-.nickname-panel {
-  padding: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.nickname-panel label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; }
-
-.row, .message-form { display: flex; gap: 8px; }
-
-input {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font: inherit;
-}
-
-button[type="submit"] {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  background: var(--mine);
-  color: var(--mine-text);
-  font: inherit;
-  cursor: pointer;
-}
-
-button:disabled { opacity: 0.5; cursor: default; }
-
-.messages {
-  flex: 1;
-  margin: 0;
-  padding: 16px;
-  list-style: none;
-  overflow-y: auto;
+.me {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  margin: 0 12px 6px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
 }
 
-.message { max-width: 80%; align-self: flex-start; }
-.message.mine { align-self: flex-end; text-align: right; }
+.me-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.me-text strong { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.me-text span { color: var(--text-3); font-size: 12px; }
 
-.message .meta { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.room-list { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: 0 0 12px; list-style: none; }
 
-.message .bubble {
-  display: inline-block;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: var(--other);
-  white-space: pre-wrap;
-  word-break: break-word;
+.room-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border: none;
+  background: none;
   text-align: left;
 }
 
-.message.mine .bubble { background: var(--mine); color: var(--mine-text); }
+.room-item:hover { background: var(--hover); }
+.room-item.active { background: var(--active); }
 
-.status { margin: 0; padding: 0 16px; min-height: 18px; font-size: 13px; color: var(--error); }
+.room-main { flex: 1; min-width: 0; }
 
-.message-form { padding: 12px 16px; border-top: 1px solid var(--border); }
+.room-top { display: flex; align-items: baseline; gap: 6px; }
+.room-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.room-members { flex-shrink: 0; color: var(--text-3); font-size: 13px; }
+
+.room-last {
+  margin-top: 2px;
+  color: var(--text-2);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-time { align-self: flex-start; flex-shrink: 0; margin-top: 3px; color: var(--text-3); font-size: 11px; }
+
+.room-empty { padding: 48px 24px; text-align: center; color: var(--text-2); }
+.room-empty p { margin: 0 0 16px; line-height: 1.6; }
+
+.pill-btn,
+.btn-yellow {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--yellow);
+  color: var(--on-yellow);
+  font-weight: 600;
+}
+
+/* ───── 채팅방 ───── */
+.room-pane { position: relative; min-width: 0; min-height: 0; background: var(--chat-bg); }
+
+.room-placeholder {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: var(--chat-meta);
+}
+
+.room-placeholder svg { width: 56px; height: 56px; stroke: none; opacity: 0.35; }
+.room-placeholder p { margin: 0; }
+
+.room {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.room-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 10px 10px 16px;
+  background: var(--chat-bg);
+}
+
+.room-header .icon-btn { color: var(--text); }
+.room-header .icon-btn:hover { background: rgba(127, 127, 127, 0.15); }
+
+.back { display: none; margin-left: -8px; }
+
+.room-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.room-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.room-count { flex-shrink: 0; color: var(--chat-meta); font-size: 15px; font-weight: 500; }
+
+/* 메시지 */
+.messages {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px 16px 16px;
+  list-style: none;
+}
+
+.date-sep { display: flex; justify-content: center; margin: 14px 0 10px; }
+
+.date-sep span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--date-pill);
+  color: var(--date-text);
+  font-size: 12px;
+}
+
+.date-sep svg { width: 14px; height: 14px; }
+
+.msg { display: flex; gap: 8px; margin-top: 8px; }
+.msg.cont { margin-top: 3px; }
+.msg.mine { justify-content: flex-end; }
+
+.msg .avatar-slot { width: 40px; flex-shrink: 0; }
+
+.msg-body { min-width: 0; max-width: min(70%, 520px); display: flex; flex-direction: column; }
+.msg.mine .msg-body { align-items: flex-end; }
+
+.msg-name { margin: 0 0 4px 2px; color: var(--chat-meta); font-size: 12.5px; }
+
+.msg-line { display: flex; align-items: flex-end; gap: 5px; max-width: 100%; }
+.msg.mine .msg-line { flex-direction: row-reverse; }
+
+.bubble {
+  position: relative;
+  min-width: 0;
+  padding: 7px 11px;
+  border-radius: 14px;
+  background: var(--bubble-other);
+  color: var(--bubble-other-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.msg.mine .bubble { background: var(--yellow); color: var(--on-yellow); }
+
+/* 묶음의 첫 메시지에만 꼬리를 단다 */
+.msg:not(.cont) .bubble::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 10px solid var(--bubble-other);
+}
+
+.msg.other:not(.cont) .bubble { border-top-left-radius: 4px; }
+.msg.other:not(.cont) .bubble::before { left: -6px; border-left: 8px solid transparent; }
+
+.msg.mine:not(.cont) .bubble { border-top-right-radius: 4px; }
+.msg.mine:not(.cont) .bubble::before { right: -6px; border-right: 8px solid transparent; border-top-color: var(--yellow); }
+
+.msg time { flex-shrink: 0; color: var(--chat-meta); font-size: 11px; white-space: nowrap; }
+
+/* 입력창 */
+.composer {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: var(--app-bg);
+  border-top: 1px solid var(--line);
+}
+
+.composer textarea {
+  flex: 1;
+  min-width: 0;
+  max-height: 120px;
+  padding: 9px 4px;
+  border: none;
+  background: transparent;
+  resize: none;
+  line-height: 1.45;
+}
+
+.composer textarea:focus { outline: none; }
+.composer textarea::placeholder { color: var(--text-3); }
+
+.send {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--yellow);
+  color: var(--on-yellow);
+  font-weight: 600;
+}
+
+.send:disabled { background: var(--send-off-bg); color: var(--send-off-text); }
+
+/* 채팅방 서랍 */
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 5;
+}
+
+.drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(300px, 86%);
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  box-shadow: var(--shadow);
+  transform: translateX(105%);
+  transition: transform 0.22s ease;
+  z-index: 6;
+}
+
+.room.drawer-open .scrim { opacity: 1; pointer-events: auto; }
+.room.drawer-open .drawer { transform: none; }
+
+.drawer-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 10px 6px 18px; }
+.drawer-header h3 { margin: 0; font-size: 15px; font-weight: 700; }
+
+.invite { display: flex; gap: 6px; padding: 8px 14px 12px; }
+
+.invite input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--field-line);
+  border-radius: 6px;
+  background: var(--field-bg);
+}
+
+.invite button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--yellow);
+  color: var(--on-yellow);
+  font-weight: 600;
+}
+
+.member-list { flex: 1; min-height: 0; overflow-y: auto; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+
+.member { display: flex; align-items: center; gap: 10px; padding: 8px 18px; }
+.member-text { min-width: 0; display: flex; flex-direction: column; }
+.member-name { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.member-id { color: var(--text-3); font-size: 12px; }
+
+.me-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--text-2);
+  color: var(--app-bg);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.leave {
+  margin: 0;
+  padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+  border: none;
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--danger);
+  text-align: left;
+}
+
+.leave:hover { background: var(--hover); }
+
+/* 새 채팅방 다이얼로그 */
+.dialog {
+  width: min(340px, calc(100vw - 32px));
+  padding: 22px 20px 16px;
+  border: none;
+  border-radius: 12px;
+  background: var(--app-bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.dialog::backdrop { background: var(--scrim); }
+.dialog h3 { margin: 0 0 14px; font-size: 16px; }
+
+.dialog input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--field-line);
+  border-radius: 6px;
+  background: var(--field-bg);
+}
+
+.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.dialog .btn-yellow { border-radius: 6px; padding: 8px 16px; }
+
+.btn-ghost { padding: 8px 14px; border: none; border-radius: 6px; background: none; color: var(--text-2); }
+.btn-ghost:hover { background: var(--hover); }
+
+/* 알림 */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 88px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(25, 25, 25, 0.88);
+  color: #ffffff;
+  font-size: 13px;
+  transform: translate(-50%, 8px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  z-index: 20;
+}
+
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ───── 모바일: 목록과 채팅방을 한 화면씩 ───── */
+@media (max-width: 720px) {
+  .app { grid-template-columns: 1fr; }
+  .list-pane { border-right: none; }
+  .room-pane { display: none; }
+  .app.room-open .list-pane { display: none; }
+  .app.room-open .room-pane { display: block; }
+  .back { display: inline-grid; }
+  .msg-body { max-width: 78%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer, .scrim, .toast { transition: none; }
+}

@@ -1,36 +1,154 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>채팅방</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <title>채팅</title>
+  <script>
+    // 저장된 테마를 그리기 전에 적용해 깜빡임을 막는다. 기본값은 다크.
+    try {
+      var savedTheme = localStorage.getItem("chat.theme");
+      if (savedTheme === "light" || savedTheme === "dark") document.documentElement.dataset.theme = savedTheme;
+    } catch (e) {}
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <main class="chat">
-    <header class="chat-header">
-      <h1>채팅방</h1>
-      <button id="change-nickname" type="button" class="link-button" hidden></button>
-    </header>
+  <svg class="sprite" aria-hidden="true">
+    <symbol id="i-bubble" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 3C6.48 3 2 6.58 2 11c0 2.83 1.84 5.31 4.62 6.73L5.5 21.5l4.33-2.83c.7.1 1.43.16 2.17.16 5.52 0 10-3.58 10-8S17.52 3 12 3z"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="4"/>
+      <path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/>
+    </symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M10 8l-4 4 4 4M6 12h10"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></symbol>
+  </svg>
 
-    <section id="nickname-panel" class="nickname-panel">
-      <form id="nickname-form">
-        <label for="nickname-input">닉네임을 입력하고 입장하세요</label>
-        <div class="row">
-          <input id="nickname-input" maxlength="30" autocomplete="nickname" required>
-          <button type="submit">입장</button>
+  <!-- 로그인 / 회원가입 -->
+  <section id="auth-view" class="auth" hidden>
+    <button type="button" class="icon-btn theme-toggle auth-theme" aria-label="테마 전환">
+      <svg><use href="#i-sun"/></svg>
+    </button>
+    <div class="auth-inner">
+      <svg class="auth-logo" aria-hidden="true"><use href="#i-bubble"/></svg>
+      <form id="auth-form" class="auth-form" novalidate>
+        <div class="auth-fields">
+          <input name="loginId" maxlength="30" placeholder="아이디" autocomplete="username" aria-label="아이디" required>
+          <input name="password" type="password" maxlength="100" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호" required>
+          <input name="nickname" maxlength="30" placeholder="닉네임" autocomplete="nickname" aria-label="닉네임" hidden>
         </div>
+        <p id="auth-hint" class="auth-hint" hidden>아이디는 영문, 숫자, _ 로 4~30자, 비밀번호는 8자 이상입니다.</p>
+        <p id="auth-error" class="auth-error" role="alert"></p>
+        <button type="submit" id="auth-submit" class="auth-submit">로그인</button>
       </form>
-    </section>
+      <p class="auth-switch">
+        <span id="auth-switch-text">계정이 없나요?</span>
+        <button type="button" id="auth-switch">회원가입</button>
+      </p>
+    </div>
+  </section>
 
-    <ol id="messages" class="messages" aria-live="polite"></ol>
-    <p id="status" class="status" role="status"></p>
+  <!-- 메신저 -->
+  <div id="app-view" class="app" hidden>
+    <aside class="list-pane">
+      <header class="list-header">
+        <h1>채팅</h1>
+        <div class="header-actions">
+          <button type="button" class="icon-btn theme-toggle" aria-label="테마 전환">
+            <svg><use href="#i-sun"/></svg>
+          </button>
+          <button type="button" class="icon-btn" id="new-room" aria-label="새 채팅방 만들기" title="새 채팅방">
+            <svg><use href="#i-plus"/></svg>
+          </button>
+        </div>
+      </header>
 
-    <form id="message-form" class="message-form">
-      <input id="message-input" maxlength="1000" placeholder="메시지를 입력하세요" autocomplete="off" disabled>
-      <button type="submit" disabled>전송</button>
+      <div class="me">
+        <div class="avatar avatar-lg" id="me-avatar" aria-hidden="true"></div>
+        <div class="me-text">
+          <strong id="me-name"></strong>
+          <span id="me-id"></span>
+        </div>
+        <button type="button" class="icon-btn" id="logout" aria-label="로그아웃" title="로그아웃">
+          <svg><use href="#i-logout"/></svg>
+        </button>
+      </div>
+
+      <ul id="room-list" class="room-list"></ul>
+      <div id="room-empty" class="room-empty" hidden>
+        <p>참여한 채팅방이 없습니다.<br>채팅방을 만들고 친구를 초대해 보세요.</p>
+        <button type="button" class="pill-btn" id="room-empty-create">채팅방 만들기</button>
+      </div>
+    </aside>
+
+    <main class="room-pane">
+      <div id="room-placeholder" class="room-placeholder">
+        <svg aria-hidden="true"><use href="#i-bubble"/></svg>
+        <p>채팅방을 선택하세요</p>
+      </div>
+
+      <section id="room" class="room" hidden>
+        <header class="room-header">
+          <button type="button" class="icon-btn back" id="back" aria-label="채팅 목록으로">
+            <svg><use href="#i-back"/></svg>
+          </button>
+          <h2 class="room-heading">
+            <span id="room-title" class="room-title"></span>
+            <span id="room-count" class="room-count"></span>
+          </h2>
+          <button type="button" class="icon-btn" id="drawer-open" aria-label="채팅방 서랍 열기" aria-controls="drawer">
+            <svg><use href="#i-menu"/></svg>
+          </button>
+        </header>
+
+        <ol id="messages" class="messages" aria-live="polite"></ol>
+
+        <form id="message-form" class="composer">
+          <textarea id="message-input" rows="1" maxlength="1000" placeholder="메시지 입력" aria-label="메시지 입력"></textarea>
+          <button type="submit" id="send" class="send" disabled>전송</button>
+        </form>
+
+        <div id="scrim" class="scrim"></div>
+        <aside id="drawer" class="drawer" aria-label="채팅방 서랍" inert>
+          <header class="drawer-header">
+            <h3>대화상대</h3>
+            <button type="button" class="icon-btn" id="drawer-close" aria-label="서랍 닫기">
+              <svg><use href="#i-close"/></svg>
+            </button>
+          </header>
+          <form id="invite-form" class="invite">
+            <input id="invite-id" maxlength="30" placeholder="초대할 아이디" aria-label="초대할 아이디" required>
+            <button type="submit">초대</button>
+          </form>
+          <ul id="member-list" class="member-list"></ul>
+          <button type="button" id="leave-room" class="leave">채팅방 나가기</button>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="room-dialog" class="dialog">
+    <form id="room-form">
+      <h3>새 채팅방</h3>
+      <input id="room-name" maxlength="50" placeholder="채팅방 이름" aria-label="채팅방 이름" required>
+      <div class="dialog-actions">
+        <button type="button" id="room-cancel" class="btn-ghost">취소</button>
+        <button type="submit" class="btn-yellow">만들기</button>
+      </div>
     </form>
-  </main>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
   <script src="/js/chat.js"></script>
 </body>
 </html>
