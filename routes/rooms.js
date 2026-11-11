@@ -22,18 +22,26 @@ function toMessage(row) {
 }
 
 // 내가 참여한 방 목록. 마지막 메시지와 함께, 최근 대화가 있는 방부터 돌려준다.
+// TiDB는 JOIN ON 절의 서브쿼리를 지원하지 않으므로 방별 집계를 파생 테이블로 만들어 조인한다.
 router.get("/", async (req, res, next) => {
   try {
     const [rows] = await pool.query(
       `SELECT m.ROOM_NO, m.ROOM_NAME, m.CREATED_AT,
-              (SELECT COUNT(*) FROM MESSAGE_MEMBER x WHERE x.ROOM_NO = m.ROOM_NO) AS MEMBER_COUNT,
+              mc.MEMBER_COUNT,
               d.CONTENT AS LAST_CONTENT, d.CREATED_AT AS LAST_AT
          FROM MESSAGE_MST m
          JOIN MESSAGE_MEMBER mm ON mm.ROOM_NO = m.ROOM_NO AND mm.USER_NO = ?
-         LEFT JOIN MESSAGE_DTL d
-           ON d.MSG_NO = (SELECT MAX(x.MSG_NO) FROM MESSAGE_DTL x WHERE x.ROOM_NO = m.ROOM_NO)
+         JOIN (SELECT ROOM_NO, COUNT(*) AS MEMBER_COUNT
+                 FROM MESSAGE_MEMBER
+                WHERE ROOM_NO IN (SELECT ROOM_NO FROM MESSAGE_MEMBER WHERE USER_NO = ?)
+                GROUP BY ROOM_NO) mc ON mc.ROOM_NO = m.ROOM_NO
+         LEFT JOIN (SELECT ROOM_NO, MAX(MSG_NO) AS LAST_MSG_NO
+                      FROM MESSAGE_DTL
+                     WHERE ROOM_NO IN (SELECT ROOM_NO FROM MESSAGE_MEMBER WHERE USER_NO = ?)
+                     GROUP BY ROOM_NO) lm ON lm.ROOM_NO = m.ROOM_NO
+         LEFT JOIN MESSAGE_DTL d ON d.MSG_NO = lm.LAST_MSG_NO
         ORDER BY COALESCE(d.CREATED_AT, m.CREATED_AT) DESC, m.ROOM_NO DESC`,
-      [req.user.userNo]
+      [req.user.userNo, req.user.userNo, req.user.userNo]
     );
     res.json({
       rooms: rows.map((r) => ({
